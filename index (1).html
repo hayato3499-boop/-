@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日程候補文メーカー</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 26px;
+      margin-top: 0;
+    }
+    p {
+      line-height: 1.7;
+    }
+    textarea, input, select {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      font-size: 17px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+    .output {
+      white-space: pre-wrap;
+      background: #f0f0f0;
+      padding: 16px;
+      border-radius: 8px;
+      min-height: 120px;
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+    .note {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>日程候補文メーカー</h1>
+    <p>
+      面接や説明会の日程候補を入力すると、メールに貼りやすい形へ整形します。
+      毎回「第一候補」「第二候補」と手で書く手間を減らすための小さなツールです。
+    </p>
+
+    <label for="name">宛名・用途メモ 任意</label>
+    <input id="name" placeholder="例：一次面接の日程候補" />
+
+    <label for="dates">候補日を1行ずつ入力</label>
+    <textarea id="dates" rows="7" placeholder="例：&#10;6/10 13時以降&#10;6/12 終日&#10;6/15 15時以降"></textarea>
+
+    <button onclick="makeText()">候補文を作成する</button>
+
+    <div class="output" id="output">ここに作成結果が表示されます。</div>
+
+    <p class="note">
+      ※曜日や終了時刻は自動では付けません。誤記や勝手な終了時刻追加を避けるため、入力内容をそのまま整形します。
+    </p>
+  </div>
+
+  <script>
+    function makeText() {
+      const datesText = document.getElementById('dates').value.trim();
+      const output = document.getElementById('output');
+
+      if (!datesText) {
+        output.textContent = '候補日を入力してください。';
+        return;
+      }
+
+      const labels = ['第一候補', '第二候補', '第三候補', '第四候補', '第五候補', '第六候補', '第七候補'];
+      const lines = datesText.split('\n').map(line => line.trim()).filter(line => line !== '');
+
+      const result = lines.map((line, index) => {
+        const label = labels[index] || `第${index + 1}候補`;
+        return `${label}　${formatLine(line)}`;
+      }).join('\n');
+
+      output.textContent = result;
+    }
+
+    function formatLine(line) {
+      let formatted = line;
+
+      formatted = formatted.replace(/(\d{1,2})\/(\d{1,2})/g, '$1月$2日');
+      formatted = formatted.replace(/終日$/g, '終日可');
+      formatted = formatted.replace(/以降$/g, '以降可');
+
+      return formatted;
+    }
+  </script>
+</body>
+</html>
